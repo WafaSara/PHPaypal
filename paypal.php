@@ -7,12 +7,13 @@ class Paypal
 {
     const GET_TOKEN_URL = 'https://api.sandbox.paypal.com/v1/oauth2/token';
 
-    function __construct(argument)
+    function __construct()
     {
 
     }
 
-    public function getAccessToken(){
+    public function getAccessToken()
+    {
 
 
     }
