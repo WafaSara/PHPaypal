@@ -6,12 +6,13 @@
 class paypal
 {
 
-    function __construct(argument)
+    function __construct()
     {
 
     }
 
-    public function getAccessToken(){
+    public function getAccessToken()
+    {
 
     }
 
