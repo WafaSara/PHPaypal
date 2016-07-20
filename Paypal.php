@@ -9,6 +9,7 @@ class Paypal
 {
     const GET_TOKEN_URL      = 'https://api.sandbox.paypal.com/v1/oauth2/token';
     const CREATE_PAYMENT_URL = 'https://api.sandbox.paypal.com/v1/payments/payment';
+    const PAYMENT_INFO_URL   = 'https://api.sandbox.paypal.com/v1/payments/payment';
     const DEFAULT_PAYMENT    = 'paypal';
 
     /**
@@ -17,6 +18,7 @@ class Paypal
      */
     private $accessToken;
 
+    private $redirectURL;
 
     /**
      * Class constructor
@@ -28,9 +30,24 @@ class Paypal
     }
 
     /**
-     * get an access token
-     *
+     * @return mixed
+     */
+    public function getRedirectURL()
+    {
+        return $this->redirectURL;
+    }
+
+    /**
+     * @param mixed $redirectURL
+     */
+    public function setRedirectURL($redirectURL)
+    {
+        $this->redirectURL = $redirectURL;
+    }
+
+    /**
      * @return string
+     * @throws Exception
      */
     public function getAccessToken()
     {
@@ -57,13 +74,11 @@ class Paypal
     }
 
     /**
-     * create a paypal payment
-     *
-     * @param float $amount
-     * @param string $currency
-     * @param string $description
-     *
-     * @return string redirect url
+     * @param $amount
+     * @param $currency
+     * @param $description
+     * @return mixed
+     * @throws Exception
      */
     public function createPayment($amount, $currency, $description)
     {
@@ -113,19 +128,18 @@ class Paypal
         $response = json_decode($result, true);
         $key = array_search("REDIRECT", array_column($response["links"], 'method'));
         curl_close($ch);
+        $this->redirectURL = $response["links"][$key]["href"];
         return $response["links"][$key]["href"];
     }
 
     /**
-     * confirm the payment
-     *
-     * @param string payerId passed in the return url by paypal
-     *
-     * @return array paiement description
+     * @param $paymentId
+     * @param $payerId
+     * @return mixed
+     * @throws Exception
      */
     public function confirmPayment($paymentId, $payerId)
     {
-
         $jsonPayerId = json_encode(array("payer_id" => $payerId));
         $ch = curl_init();
 
@@ -150,15 +164,35 @@ class Paypal
         return json_decode($result, true);
     }
 
+    public function getPaymentInfo($paymentId) {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, self::PAYMENT_INFO_URL . '/' . $paymentId);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type:application/json',
+            'Authorization: Bearer ' . $this->accessToken
+        ));
+
+        $result = curl_exec($ch);
+
+        if(curl_error($ch)) {
+            throw new Exception("Error Processing Request: ". curl_error($ch), 1);
+        }
+        curl_close($ch);
+
+        return json_decode($result, true);
+    }
+
     /**
-     * check given config format
-     *
-     * @param string $clientId
-     * @param clientSecret
+     * @param $clientId
+     * @param $clientSecret
      * @param $backUrl
-     * @param cancelUrl
-     *
-     * @return boolean
+     * @param $cancelUrl
+     * @return bool
+     * @throws Exception
      */
     private function prepare($clientId, $clientSecret, $backUrl, $cancelUrl)
     {
@@ -178,13 +212,11 @@ class Paypal
     }
 
     /**
-     * check given params format
-     *
-     * @param  float $amount
-     * @param  string $currency
-     * @param  string $description
-     *
-     * @return boolean
+     * @param $amount
+     * @param $currency
+     * @param $description
+     * @return bool
+     * @throws Exception
      */
     public function prepareParams($amount, $currency, $description)
     {
@@ -207,14 +239,4 @@ class Paypal
         }
         return true;
     }
-}
-//example
-try {
-    $paypal = new Paypal();
-    $paypal->getAccessToken();
-    var_dump($paypal->createPayment(45, 'USD', 'test payment'));
-    // sample data : paymentId=PAY-9DV39250TB438363BK4XI3ZY & PayerID=45J8NVHQ93A9A
-    var_dump($paypal->confirmPayment('PAY-9DV39250TB438363BK4XI3ZY', '45J8NVHQ93A9A'));
-} catch (Exception $e) {
-    echo 'Error: ' . $e;
 }
