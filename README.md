@@ -21,23 +21,26 @@ Renommez le fichier config.php.dist en config.php et renseignez les informations
     L'URL vers laquelle PayPal va rediriger l'acheteur s'il décide d'annuler la transaction
 
 ##Utilisation
-    1. Instanciez un objet de la classe
-    `$phpaypal = new PHPayl()`
-    2. Générez un token auprès de PayPal
-    `$paypal->getAccessToken();`
-    3. Créez un paiement
-    $url = $paypal->createPayment(62, 'EUR', 'Paire de chaussures');
-    4. Redirigez l'utilisateur vers l'URL renvoyée par la fonctionne précédente
-    5. L'utilisateur est alors entre les mains de PayPal. Il sera redirigé vers votre site via les URL définies dans la configuration
-    6. Si l'utilisateur à payé, vous pouvez confirmez le paiement avec 
-    `$paypal->confirmPayment($paymentId, $PayerID);`
-    Les arguments sont donnés par PayPal via l'URL
-    7. Si le paiement est annulé, nous ne pouvons plus vous aider
-    8. Vous pouvez avoir des informations sur le statut du paiment avec
-    `$paypal->getPaymentInfo($paymentId)`
+Comment utiliser notre module.
+1. Instanciez un objet de la classe
+`$phpaypal = new PHPayl()`
+2. Générez un token auprès de PayPal
+`$paypal->getAccessToken();`
+3. Créez un paiement
+`$url = $paypal->createPayment(62, 'EUR', 'Paire de chaussures');`
+4. Redirigez l'utilisateur vers l'URL renvoyée par la fonctionne précédente
+5. L'utilisateur est alors entre les mains de PayPal. Il sera redirigé vers votre site via les URL définies dans la configuration
+6. Si l'utilisateur à payé, vous pouvez confirmez le paiement avec 
+`$paypal->confirmPayment($paymentId, $PayerID);`
+Les arguments sont donnés par PayPal via l'URL
+7. Si le paiement est annulé, nous ne pouvons plus vous aider
+8. Vous pouvez avoir des informations sur le statut du paiment avec
+`$paypal->getPaymentInfo($paymentId)`
 
 #A propos
-
-    Enjoy.
-    ESGI 2016 4A EB3
-    Antoine Cusset, Jolan Levy, Wafae Ben Sahla, Alexandre Morin, Hugo Piso
+ESGI 2016 4A EB3. 
+* Antoine Cusset
+* Jolan Levy
+* Wafae Ben Sahla
+* Alexandre Morin
+* Hugo Piso
